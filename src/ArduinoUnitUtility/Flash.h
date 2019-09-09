@@ -10,20 +10,20 @@
 //
 #    define ARDUINO_UNIT_PSTR(str) \
        (__extension__({ \
-         PGM_P ptr;  \
+         PGM_P ptr ## __COUNTER__;  \
          asm volatile \
          ( \
-           ".pushsection .progmem.data, \"SM\", @progbits, 1" "\n\t" \
-           "0: .string " #str                                 "\n\t" \
-           ".popsection"                                      "\n\t" \
+           ".pushsection .progmem.mergeable-strings, \"SM\", @progbits, 1" "\n\t" \
+           "0: .string " #str                                              "\n\t" \
+           ".popsection"                                                   "\n\t" \
          ); \
          asm volatile \
          ( \
-           "ldi %A0, lo8(0b)"                                 "\n\t" \
-           "ldi %B0, hi8(0b)"                                 "\n\t" \
-           : "=d" (ptr) \
+           "ldi %A0, lo8(0b)"                                              "\n\t" \
+           "ldi %B0, hi8(0b)"                                              "\n\t" \
+           : "=d" (ptr ## __COUNTER__) \
          ); \
-         ptr; \
+         ptr ## __COUNTER__ ; \
        }))
 #    define ARDUINO_UNIT_STRING(STR) (reinterpret_cast<const __FlashStringHelper *>(ARDUINO_UNIT_PSTR(STR)))
 #    define ARDUINO_UNIT_DECLARE_STRING const __FlashStringHelper *
